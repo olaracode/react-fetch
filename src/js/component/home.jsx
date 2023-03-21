@@ -1,90 +1,35 @@
 import React, { useState } from "react";
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
+// Nuestro endpoint sacado de  https://rickandmortyapi.com/documentation
+const characterListUrl = "https://rickandmortyapi.com/api/character";
 
-/**
- *
- * Refactorizar: Optimizar y limpiar el codigo
- */
-let initialValue = [
-  {
-    nombre: "Cambur",
-    valor: 5,
-  },
-  {
-    nombre: "Manzana",
-    valor: 10,
-  },
-  {
-    nombre: "Naranja",
-    valor: 3,
-  },
-];
 const Home = () => {
-  // Declaramos nuestro estado: "lista", con un valor inicial de un arreglo vacio
-  const [products, setProducts] = useState(initialValue);
-  const [productName, setProductName] = useState("");
-  const [productPrice, setProductPrice] = useState("");
+  const [characterList, setCharacterList] = useState([]);
 
-  // handle se suele usar para nombres de manejadores de evento
-  const handleProductChange = (event) => {
-    // Modificando el productName con el valor del input
-    setProductName(event.target.value);
-  };
-  const handlePrice = (event) => {
-    setProductPrice(event.target.value);
+  // Declaramos una funcion que maneja el evento click
+  // Manejo directo de la promesa usando .then
+  const handleClick = () => {
+    fetch(characterListUrl)
+      .then((response) => response.json()) // Traduzco a json
+      .then((data) => setCharacterList(data.results)); // Asigno los resultados a mi estado
   };
 
-  // Funcion que agrega un nuevo producto a la lista a la lista
-  const handleAddClick = () => {
-    const nuevoProducto = {
-      nombre: productName,
-      valor: productPrice,
-    };
-    // ... -> Spread Operator
-    // declaro una nueva lista con los valores de la anterior mas el valor nuevo
-    const nuevaListaDeProductos = [...products, nuevoProducto];
+  // Lo mismo que en handle click pero usando otra sintaxis
+  // Manejo de la promesa usando Async/Await
+  const asyncHandleClick = async () => {
+    const respuesta = await fetch(characterListUrl); // La respuesta del servidor
 
-    setProducts(nuevaListaDeProductos);
+    // Se espera a que se cumpla la promesa anterior
+    const informacion = await respuesta.json(); // Traducimos a JSON
+    setCharacterList(informacion.results); // Asignamos la informacion al estado
   };
-
   return (
     <div className="text-center">
-      <h1 className="text-center mt-5">TODO</h1>
-      <div className="card m-5">
-        <div className="card-header">
-          <input
-            type="text"
-            placeholder="Nuevo producto"
-            onChange={(event) => handleProductChange(event)}
-          />
-          <input
-            type="number"
-            placeholder="precio"
-            onChange={(event) => handlePrice(event)}
-          />
-
-          <button onClick={() => handleAddClick()}>Agregame</button>
-          <p>
-            {productName} cuesta {productPrice}$
-          </p>
-        </div>
-        <div className="card-body">
-          <ul>
-            {products.map((producto, index) => {
-              return (
-                <p key={`${producto.nombre}-${index}`}>
-                  {producto.nombre} {producto.valor}$
-                </p>
-              );
-            })}
-          </ul>
-        </div>
-        <div className="card-footer">
-          Te estas llevando 3 elementos {products.length}
-        </div>
-      </div>
+      <p>Personajes de rick y morty</p>
+      <button onClick={() => asyncHandleClick()}>Buscar personajes</button>
+      {characterList.map((personaje) => {
+        return <p key={personaje.id}>{personaje.name}</p>;
+      })}
     </div>
   );
 };
